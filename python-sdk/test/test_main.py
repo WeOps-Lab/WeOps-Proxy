@@ -1,5 +1,5 @@
 import pytest
-from sdk.core import WeOpsProxyClient
+from weopsproxy.core import WeOpsProxyClient
 
 cisco_snmp_config = """walk:
 - 1.3.6.1.2.1.14.10.1.3
