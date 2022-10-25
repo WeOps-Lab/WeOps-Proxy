@@ -14,7 +14,7 @@ RUN chown -R 1001:1001 /app
 ENV PROXY_HOME /app
 RUN wget -O /tmp/consul.zip https://releases.hashicorp.com/consul-template/0.29.5/consul-template_0.29.5_linux_amd64.zip && unzip -d /bin /tmp/consul.zip
 RUN wget -O /tmp/grafana-agent.zip https://github.com/grafana/agent/releases/download/v0.28.0/agent-linux-amd64.zip && unzip -d /bin /tmp/grafana-agent.zip && mv /bin/agent-linux-amd64 /bin/grafana-agent
-
+RUN rm -rf /tmp/*.zip
 RUN chown -R 1001:1001 /app 
 
 USER weops

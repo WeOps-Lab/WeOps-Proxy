@@ -6,4 +6,4 @@ sdk:
 	python python-sdk/weopssetup.py bdist_wheel
 
 docker:
-	docker build . -t WeOpsProxy
+	docker build . -t weopsproxy
