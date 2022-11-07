@@ -5,3 +5,4 @@ python-sdk/dist
 __pycache__
 build*
 venv
+.idea
