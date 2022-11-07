@@ -2,8 +2,12 @@
 
 .DEFAULT_GOAL := docker
 
-sdk: 
-	python python-sdk/weopssetup.py bdist_wheel
+release:
+    cd python-sdk &&\
+	python ./setup.py clean &&\
+	python ./setup.py sdist &&\
+	python ./setup.py bdist_wheel &&\
+	twine upload dist/*
 
 docker:
 	docker build . -t weopsproxy
