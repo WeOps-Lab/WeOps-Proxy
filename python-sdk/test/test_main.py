@@ -1,6 +1,8 @@
 import pytest
 from weopsproxy.core import WeOpsProxyClient
 
+consul_ip="10.10.42.197"
+consul_port="8500"
 cisco_snmp_config = """walk:
 - 1.3.6.1.2.1.14.10.1.3
 - 1.3.6.1.2.1.14.10.1.6
@@ -414,14 +416,14 @@ metrics:
 class TestClass:
     def test_初始化client(self):
         WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
 
     def test_生成conul的key(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         keys = ["cisco_cw", "h3c_cw", "huawei_cw"]
         for a in keys:
@@ -432,8 +434,8 @@ class TestClass:
 
     def test_生成snmp采集任务的values(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client._get_snmp_task(task_id="cisco_cw", task_address="192.168.165.200", task_module="cisco_cw", auth={
             "username": "cisco123",
@@ -447,8 +449,8 @@ class TestClass:
 
     def test_添加snmp_v2任务(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.put_snmp_v2_task(zone="default",
                                 task_id="cisco_v2",
@@ -458,8 +460,8 @@ class TestClass:
 
     def test_添加snmp_v3任务(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.put_snmp_v3_task(zone="default", task_id="cisco_v3", task_address="192.168.165.200", task_config="cisco_cw",
                                 username="cisco123",
@@ -472,37 +474,44 @@ class TestClass:
 
     def test_查询snmp任务(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.get_snmp_task(zone="default", task_id="cisco_v2")
         client.get_snmp_task(zone="default", task_id="cisco_v3")
 
     def test_删除snmp任务(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.delete_snmp_task(zone="default", task_id="cisco_v2")
         client.delete_snmp_task(zone="default", task_id="cisco_v3")
 
     def test_创建全局配置(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.put_global_config(module="snmp", config_id="cisco_cw", config=cisco_snmp_config)
 
     def test_查询全局配置(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
-        client.get_global_config(module="snmp", config_id="h3c")
+        client.get_global_config(module="snmp", config_id="cisco_cw")
 
     def test_删除全局配置(self):
         client = WeOpsProxyClient(
-            consul_host="10.10.41.162",
-            consul_port="8500"
+            consul_host=consul_ip,
+            consul_port=consul_port
         )
         client.delete_global_config(module="snmp", config_id="h3c")
+    
+    def test_获取接入点(self):
+        client = WeOpsProxyClient(
+            consul_host=consul_ip,
+            consul_port=consul_port
+        )
+        print(client.get_access_points())
