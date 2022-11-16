@@ -49,6 +49,9 @@ param: |
         "type": "global",
         "zone": "modules"
     }
+    __metric_template = """record: ${record}
+expr: ${expr}
+"""
 
     class Action(Enum):
         Put = 1
@@ -186,3 +189,20 @@ param: |
                 json.loads(data)
             )
         return access_points
+
+    def put_metric(self, metric_record, metric_expr):
+        path = "weops/global/metrics/{}".format(metric_record)
+        self._runner(self.Action.Put,
+                     key=path,
+                     value=Template(self.__metric_template).safe_substitute({
+                         "record": metric_record,
+                         "expr": metric_expr
+                     }))
+    
+    def get_metric(self, metric_record):
+        return yaml.load(
+            self._runner(self.Action.Get,key="weops/global/metrics/{}".format(metric_record))[1].get("Value"),
+            yaml.FullLoader)
+    
+    def delete_metric(self, metric_record):
+        self._runner(self.Action.Delete,key="weops/global/metrics/{}".format(metric_record))

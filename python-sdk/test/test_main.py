@@ -1,8 +1,8 @@
 import pytest
 from weopsproxy.core import WeOpsProxyClient
 
-consul_ip="10.10.42.197"
-consul_port="8500"
+consul_ip = "10.10.42.197"
+consul_port = "8500"
 cisco_snmp_config = """walk:
 - 1.3.6.1.2.1.14.10.1.3
 - 1.3.6.1.2.1.14.10.1.6
@@ -413,6 +413,7 @@ metrics:
     type: DisplayString
 """
 
+
 class TestClass:
     def test_初始化client(self):
         WeOpsProxyClient(
@@ -493,7 +494,8 @@ class TestClass:
             consul_host=consul_ip,
             consul_port=consul_port
         )
-        client.put_global_config(module="snmp", config_id="cisco_cw", config=cisco_snmp_config)
+        client.put_global_config(
+            module="snmp", config_id="cisco_cw", config=cisco_snmp_config)
 
     def test_查询全局配置(self):
         client = WeOpsProxyClient(
@@ -508,10 +510,31 @@ class TestClass:
             consul_port=consul_port
         )
         client.delete_global_config(module="snmp", config_id="h3c")
-    
+
     def test_获取接入点(self):
         client = WeOpsProxyClient(
             consul_host=consul_ip,
             consul_port=consul_port
         )
         print(client.get_access_points())
+
+    def test_写入指标(self):
+        client = WeOpsProxyClient(
+            consul_host=consul_ip,
+            consul_port=consul_port
+        )
+        client.put_metric(metric_record="cw_export_up",metric_expr="""irate(cw_CiscoSwitch_ifInOctets{module="cisco_switch"}[1m])""")
+    
+    def test_获取指标(self):
+        client = WeOpsProxyClient(
+            consul_host=consul_ip,
+            consul_port=consul_port
+        )
+        print(client.get_metric(metric_record="cw_export_up"))
+
+    def test_删除指标(self):
+        client = WeOpsProxyClient(
+            consul_host=consul_ip,
+            consul_port=consul_port
+        )
+        client.delete_metric(metric_record="cw_export_up")
