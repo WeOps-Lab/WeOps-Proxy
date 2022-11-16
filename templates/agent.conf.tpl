@@ -13,6 +13,9 @@ integrations:
   snmp:
     enabled: true
     config_file: /app/config/modules.yaml
+    relabel_configs:
+    - source_labels: ["__param_module"]
+      target_label: module
     snmp_targets:
 {{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}{{ $d.target | indent 4 }}{{ end }}{{ end }}
     walk_params:
