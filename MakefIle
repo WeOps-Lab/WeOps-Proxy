@@ -3,7 +3,7 @@
 .DEFAULT_GOAL := docker
 
 release:
-    cd python-sdk &&\
+	cd python-sdk &&\
 	python ./setup.py clean &&\
 	python ./setup.py sdist &&\
 	python ./setup.py bdist_wheel &&\
@@ -11,3 +11,4 @@ release:
 
 docker:
 	docker build . -t weopsproxy
+
