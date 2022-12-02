@@ -2,7 +2,8 @@
 {{ $zone := envOrDefault "ZONE" "default" }}metrics:
   wal_directory: /tmp/wal
   global:
-    scrape_interval: 15s
+    scrape_interval: 60s
+    scrape_timeout: 60s
     remote_write:
     - url: {{ $remote_url }}
 
