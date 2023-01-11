@@ -8,7 +8,20 @@ import json
 
 class WeOpsProxyClient(object):
     __consul = None
-    __snmp_v2_template = """
+    __ipmi_template = """server: ${server}
+userid: ${userid}
+password: ${password}
+timeout: ${timeout}
+task_name: ${task_id}
+interval: ${interval}
+"""
+    __snmp_v2_template = """interval: ${interval}
+timeout: ${timeout}
+name: ${task_id}
+address: ${task_address}
+module: ${task_module}
+walk_params: ${task_id}
+
 target: |
   - name: ${task_id}
     address: ${task_address}
@@ -21,7 +34,13 @@ param: |
     auth:
       community: ${community}
 """
-    __snmp_v3_template = """
+    __snmp_v3_template = """interval: ${interval}
+timeout: ${timeout}
+name: ${task_id}
+address: ${task_address}
+module: ${task_module}
+walk_params: ${task_id}
+
 target: |
   - name: ${task_id}
     address: ${task_address}
@@ -41,9 +60,13 @@ param: |
       context_name: ${context_name}
 """
     __consul_path_template = """weops/{}/{}/{}/{}"""
-    __task_param = {
+    __snmp_task_param = {
         "type": "zone",
         "module": "snmp"
+    }
+    __ipmi_task_param = {
+        "type": "zone",
+        "module": "ipmi"
     }
     __config_param = {
         "type": "global",
@@ -81,12 +104,25 @@ expr: ${expr}
 
     def _get_key(self, module, key, type, zone) -> str:
         return self.__consul_path_template.format(type, zone, module, key)
+    
+    def _get_ipmi_task(self, task_id, task_address, interval, timeout, userid, password) -> str:
+        task_info = {
+            "task_id": task_id,
+            "task_address": task_address,
+            "userid": userid,
+            "password": password,
+            "interval": interval,
+            "timeout": timeout
+        }
+        return Template(self.__ipmi_template).safe_substitute(task_info)
 
-    def _get_snmp_task(self, task_id, task_address, task_module, auth) -> str:
+    def _get_snmp_task(self, task_id, task_address, task_module, interval, timeout, auth) -> str:
         task_info = {
             "task_id": task_id,
             "task_address": task_address,
             "task_module": task_module,
+            "interval": interval,
+            "timeout": timeout
         }
         task_info.update(auth)
         if "community" in auth:
@@ -105,19 +141,24 @@ expr: ${expr}
 
     def _generate_key(self, **params) -> str:
         if "zone" in params:
-            params.update(self.__task_param)
+            if params["module"] == "snmp":
+                params.update(self.__snmp_task_param)
+            elif params["module"] == "ipmi":
+                params.update(self.__ipmi_task_param)
+            else:
+                raise Exception("unexpected zone {}!", params["zone"])
         else:
             params.update(self.__config_param)
         return self._get_key(**params)
 
-    def put_snmp_v2_task(self, zone, task_id, task_address, task_config, community):
+    def put_snmp_v2_task(self, zone, task_id, task_address, task_config, community, interval="60s", timeout="60s"):
         self._runner(self.Action.Put,
-                     key=self._generate_key(zone=zone, key=task_id),
+                     key=self._generate_key(zone=zone, key=task_id,module="snmp"),
                      value=self._get_snmp_task(task_id=task_id, task_address=task_address, task_module=task_config, auth={
                          "community": community
-                     }))
+                     }, interval=interval, timeout=timeout))
 
-    def put_snmp_v3_task(self, zone, task_id, task_address, task_config, username, security_level: SNMPV3_Security_Level, password, auth_protocol: SNMPV3_Auth_Protocol, priv_protocol, priv_password, context_name=""):
+    def put_snmp_v3_task(self, zone, task_id, task_address, task_config, username, security_level: SNMPV3_Security_Level, password, auth_protocol: SNMPV3_Auth_Protocol, priv_protocol, priv_password, context_name="", interval="60s", timeout="60s"):
         """snmp v3 params:
         username
         security_level
@@ -128,7 +169,7 @@ expr: ${expr}
         context_name
         """
         self._runner(self.Action.Put,
-                     key=self._generate_key(zone=zone, key=task_id),
+                     key=self._generate_key(zone=zone, key=task_id,module="snmp"),
                      value=self._get_snmp_task(task_id=task_id, task_address=task_address, task_module=task_config, auth={
                          "username": username,
                          "security_level": security_level,
@@ -137,7 +178,7 @@ expr: ${expr}
                          "priv_protocol": priv_protocol,
                          "priv_password": priv_password,
                          "context_name": context_name
-                     }))
+                     }, interval=interval, timeout=timeout))
 
     def delete_snmp_task(self, zone, task_id):
         self._runner(action=self.Action.Delete,
@@ -149,7 +190,7 @@ expr: ${expr}
         try:
             return data[1]["Value"]
         except:
-            raise Exception(f"task {task_id} in zone {zone} does not exist!")
+            raise Exception(f"snmp task {task_id} in zone {zone} does not exist!")
 
     def get_global_config(self, module, config_id) -> str:
         data = self._runner(action=self.Action.Get, key=self._generate_key(
@@ -198,11 +239,31 @@ expr: ${expr}
                          "record": metric_record,
                          "expr": metric_expr
                      }))
-    
+
     def get_metric(self, metric_record):
         return yaml.load(
-            self._runner(self.Action.Get,key="weops/global/metrics/{}".format(metric_record))[1].get("Value"),
+            self._runner(
+                self.Action.Get, key="weops/global/metrics/{}".format(metric_record))[1].get("Value"),
             yaml.FullLoader)
-    
+
     def delete_metric(self, metric_record):
-        self._runner(self.Action.Delete,key="weops/global/metrics/{}".format(metric_record))
+        self._runner(self.Action.Delete,
+                     key="weops/global/metrics/{}".format(metric_record))
+    
+    def put_ipmi_task(self, zone, task_id, task_address, userid, password, interval="60s", timeout="60s"):
+        self._runner(self.Action.Put,
+                        key=self._generate_key(zone=zone, key=task_id,module="ipmi"),
+                        value=self._get_ipmi_task(task_id=task_id, task_address=task_address, userid=userid, password=password, interval=interval, timeout=timeout))
+
+    def get_ipmi_task(self, zone, task_id) -> str:
+        data = self._runner(action=self.Action.Get,
+                            key=self._generate_key(zone=zone, key=task_id, module="ipmi"))
+        try:
+            return data[1]["Value"]
+        except:
+            raise Exception(f"ipmi task {task_id} in zone {zone} does not exist!")
+        
+
+    def delete_ipmi_task(self, zone, task_id):
+        self._runner(action=self.Action.Delete,
+                     key=self._generate_key(zone=zone, key=task_id, module="ipmi"))

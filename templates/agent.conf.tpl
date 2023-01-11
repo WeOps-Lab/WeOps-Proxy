@@ -13,6 +13,7 @@
 integrations:
   snmp:
     enabled: true
+    scrape_integration: false
     config_file: /app/config/modules.yaml
     relabel_configs:
     - source_labels: ["__param_module"]
