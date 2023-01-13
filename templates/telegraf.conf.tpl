@@ -5,7 +5,7 @@
 [[inputs.ipmi_sensor]]
 timeout = {{if $d.timeout }}"{{ $d.timeout }}"{{else}}"60s"{{end}}
 interval = {{if $d.interval }}"{{ $d.interval }}"{{else}}"60s"{{end}}
-servers = ["{{$d.userid}}:{{$d.passowrd}}@lan({{$d.server}})"]
+servers = ["{{$d.userid}}:{{$d.password}}@lan({{$d.server}})"]
   [inputs.ipmi_sensor.tags]
     task_name = "{{$d.task_name}}"
 {{ end }}{{end}}
