@@ -1,6 +1,6 @@
 {{ $remote_url := envOrDefault "REMOTE_URL" "http://10.10.10.10/api/v1/write" }}{{ $zone := envOrDefault "ZONE" "default" }}prometheus.remote_write "staging" {
   endpoint {
-    url = {{ $remote_url }}
+    url = "{{ $remote_url }}"
 
  #   http_client_config {
  #     basic_auth {
@@ -12,8 +12,7 @@
 }
 
 
-{{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}
-prometheus.scrape "{{$d.name}}" {
+{{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
     {"__address__" = "localhost:12345", "instance" = "{{$d.address}}"},
   ]

@@ -1,6 +1,6 @@
 FROM alpine:latest
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apk/repositories && \
-apk add supervisor ipmitool && \
+apk add supervisor ipmitool curl && \
 adduser weops --uid 1001 --disabled-password && \
 mkdir /var/log/supervisor && chown 1001:1001 /var/log/supervisor && \
 mkdir -p /app/run && chown 1001:1001 /app/run && \
