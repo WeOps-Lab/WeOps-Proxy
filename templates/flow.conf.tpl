@@ -16,7 +16,8 @@
   scrape_timeout = "{{$d.timeout}}"
   params          = { "target" = ["{{$d.address}}"], "module" = ["{{$d.module}}"], "walk_params" = ["{{$d.walk_params}}"] }
   metrics_path    = "/integrations/snmp/metrics"
-}{{ end }}{{ end }}
+}{{ end }}
+{{ end }}
 
 prometheus.relabel "init_proxy_label" {
   forward_to = [prometheus.remote_write.staging.receiver]
