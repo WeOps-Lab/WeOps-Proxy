@@ -24,7 +24,7 @@ prometheus.relabel "init_proxy_label" {
   rule {
     action        = "replace"
     target_label  = "zone"
-    replacement   = {{ $zone }}
+    replacement   = "{{ $zone }}"
   }
 
   rule {
