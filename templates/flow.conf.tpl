@@ -19,6 +19,20 @@
 }{{ end }}
 {{ end }}
 
+{{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
+  targets = [
+    {"__address__" = "localhost:9290", "instance" = "{{$d.address}}", "module" = "{{$d.module}}"},
+  ]
+
+  forward_to = [prometheus.relabel.init_proxy_label.receiver]
+
+  scrape_interval = "{{$d.interval}}"
+  scrape_timeout = "{{$d.timeout}}"
+  params          = { "target" = ["{{$d.address}}"], "module" = ["{{$d.module}}"] }
+  metrics_path    = "/ipmi"
+}{{ end }}
+{{ end }}
+
 prometheus.relabel "init_proxy_label" {
   forward_to = [prometheus.remote_write.staging.receiver]
 
