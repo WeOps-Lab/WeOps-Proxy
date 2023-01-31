@@ -4,8 +4,8 @@ modules:
   {{ $d.name }}:
     user: "{{ $d.user }}"
     password: "{{ $d.password }}"
-    driveer: "{{ $d.driver }}"
-    timeout: {{ $d.timeout }}
+    driver: "{{ $d.driver }}"
+    timeout: 10000
     collectors:
     - bmc
     - ipmi

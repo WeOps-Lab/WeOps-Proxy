@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.17
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apk/repositories && \
 apk add supervisor freeipmi curl && \
 adduser weops --uid 1001 --disabled-password && \

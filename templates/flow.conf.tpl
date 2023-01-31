@@ -21,7 +21,7 @@
 
 {{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    {"__address__" = "localhost:9290", "instance" = "{{$d.address}}", "module" = "{{$d.module}}"},
+    {"__address__" = "localhost:9290", "instance" = "{{$d.address}}", "module" = "{{$d.name}}"},
   ]
 
   forward_to = [prometheus.relabel.init_proxy_label.receiver]
