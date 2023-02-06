@@ -2,6 +2,7 @@ improved*
 bin*
 python-sdk/.*
 python-sdk/dist
+python-sdk/test/test_env.py
 __pycache__
 build*
 venv
