@@ -2,6 +2,9 @@
 
 .DEFAULT_GOAL := docker
 
+test:
+	python -m pytest -k
+
 release:
 	cd python-sdk &&\
 	python ./setup.py clean &&\

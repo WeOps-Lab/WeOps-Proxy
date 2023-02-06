@@ -8,12 +8,15 @@ import json
 
 class WeOpsProxyClient(object):
     __consul = None
-    __ipmi_template = """server: ${task_address}
-userid: ${userid}
-password: ${password}
-timeout: ${timeout}
-task_name: ${task_id}
-interval: ${interval}
+    __ipmi_template = """name: ${task_id}
+scrape_interval: ${interval}
+scrape_timeout: ${timeout}
+task:
+  address: ${task_address}
+  user: ${userid}
+  pass: ${password}
+  driver: LAN_2_0
+  timeout: 10000
 """
     __snmp_v2_template = """interval: ${interval}
 timeout: ${timeout}
