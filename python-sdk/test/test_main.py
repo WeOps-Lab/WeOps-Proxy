@@ -1,12 +1,12 @@
 import pytest
 from weopsproxy.core import WeOpsProxyClient
 
-ipmi_ip="10.10.10.10"
+ipmi_ip="10.11.91.253"
 ipmi_user="USERID"
-ipmi_password="PASSWORD"
+ipmi_password="PASSW0RD"
 
-consul_ip = "10.10.10.10"
-consul_port = "8500"
+consul_ip = "proxy-t.weops.com"
+consul_port = "80"
 cisco_snmp_config = """walk:
 - 1.3.6.1.2.1.14.10.1.3
 - 1.3.6.1.2.1.14.10.1.6
