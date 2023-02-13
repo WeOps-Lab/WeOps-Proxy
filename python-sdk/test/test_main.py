@@ -27,7 +27,7 @@ class TestClass:
             consul_host=CONSUL_IP,
             consul_port=CONSUL_PORT
         )
-        client._get_snmp_task(task_id="cisco_cw", task_address="192.168.165.200", task_module="cisco_cw", interval="60s",timeout="60s",auth={
+        client._get_snmp_task(task_id="cisco_cw", task_address="192.168.165.200", task_module="cisco_cw", interval="60s",labels={"tag":"name"},timeout="60s",auth={
             "username": "cisco123",
             "security_level": "AuthNoPriv",
             "password": "mypass123456",
@@ -42,7 +42,7 @@ class TestClass:
             consul_host=CONSUL_IP,
             consul_port=CONSUL_PORT
         )
-      client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",password="password",interval="60s",timeout="60s")
+      client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",password="password",labels={"tag":"name"},interval="60s",timeout="60s")
 
     def test_添加snmp_v2任务(self):
         client = WeOpsProxyClient(
@@ -68,6 +68,7 @@ class TestClass:
                                 auth_protocol="SHA",
                                 priv_protocol="DES",
                                 priv_password="pass123456",
+                                labels={"snmp_version":"v3"},
                                 context_name="")
 
     def test_查询snmp任务(self):
@@ -133,7 +134,7 @@ class TestClass:
             consul_host=CONSUL_IP,
             consul_port=CONSUL_PORT
         )
-      client.put_ipmi_task(task_id="test_ipmi_1",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD,zone="default")
+      client.put_ipmi_task(task_id="test_ipmi_2",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD,labels={"name":"ipmi","value":"abcd"},zone="default")
     
     def test_获取IPMI监控任务(self):
       client = WeOpsProxyClient(
