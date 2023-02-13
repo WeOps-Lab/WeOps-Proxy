@@ -53,6 +53,7 @@ class TestClass:
                                 task_id="cisco_v2",
                                 task_address="192.168.165.200",
                                 task_config="cisco_cw",
+                                labels={"instance_name":"instance","instance_value":"114514"},
                                 community="cisco")
 
     def test_添加snmp_v3任务(self):
