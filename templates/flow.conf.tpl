@@ -7,7 +7,12 @@
 
 {{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    {"__address__" = "localhost:12345", "instance" = "{{$d.address}}", "module" = "{{$d.module}}"},
+    { "__address__" = "localhost:12345", 
+      "instance" = "{{$d.address}}", 
+      "module" = "{{$d.module}}",
+      {{ range $i, $elem := $d.labels }}"{{$elem.name}}" = "{{$elem.value}}",
+      {{ end }}
+    },
   ]
 
   forward_to = [prometheus.relabel.init_proxy_label.receiver]
@@ -21,7 +26,12 @@
 
 {{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    {"__address__" = "localhost:9290", "instance" = "{{$d.task.address}}", "module" = "{{$d.name}}"},
+    { "__address__" = "localhost:9290", 
+      "instance" = "{{$d.task.address}}", 
+      "module" = "{{$d.name}}",
+      {{ range $i, $elem := $d.labels }}"{{$elem.name}}" = "{{$elem.value}}",
+      {{ end }}
+    },
   ]
 
   forward_to = [prometheus.relabel.init_proxy_label.receiver]
