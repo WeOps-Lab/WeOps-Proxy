@@ -50,7 +50,7 @@ prometheus.relabel "ipmi_label" {
     action        = "replace"
     target_label  = "dimension"
     source_labels = ["__name__","name"]
-    regex         = '^(ipmi_fan_speed_rpm|ipmi_fan_speed_state|ipmi_power_state|ipmi_power_watts|ipmi_sensor_state|ipmi_sensor_value|ipmi_voltage_volts|ipmi_voltage_state),(.+)$'
+    regex         = "^(ipmi_fan_speed_rpm|ipmi_fan_speed_state|ipmi_power_state|ipmi_power_watts|ipmi_sensor_state|ipmi_sensor_value|ipmi_voltage_volts|ipmi_voltage_state);(.+)$"
     replacement   = "$2"
   }
 
@@ -58,7 +58,7 @@ prometheus.relabel "ipmi_label" {
     action        = "replace"
     target_label  = "dimension"
     source_labels = ["__name__","name"]
-    regex         = '^(collector),(.+)$'
+    regex         = "^(collector);(.+)$"
     replacement   = "$2"
   }
 
