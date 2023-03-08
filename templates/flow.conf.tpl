@@ -10,6 +10,7 @@
     { "__address__" = "localhost:12345", 
       "instance" = "{{$d.address}}", 
       "module" = "{{$d.module}}",
+      "protocol" = "snmp",
       {{ range $i, $elem := $d.labels }}"{{$elem.name}}" = "{{$elem.value}}",
       {{ end }}
     },
@@ -29,6 +30,7 @@
     { "__address__" = "localhost:9290", 
       "instance" = "{{$d.task.address}}", 
       "module" = "{{$d.name}}",
+      "protocol" = "ipmi",
       {{ range $i, $elem := $d.labels }}"{{$elem.name}}" = "{{$elem.value}}",
       {{ end }}
     },
