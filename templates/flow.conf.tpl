@@ -7,7 +7,7 @@
 
 {{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    { "__address__" = "localhost:12345", 
+    { "__address__" = "127.0.0.1:12345", 
       "instance" = "{{$d.address}}", 
       "module" = "{{$d.module}}",
       "protocol" = "snmp",
@@ -27,7 +27,7 @@
 
 {{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    { "__address__" = "localhost:9290", 
+    { "__address__" = "127.0.0.1:9290", 
       "instance" = "{{$d.task.address}}", 
       "module" = "{{$d.name}}",
       "protocol" = "ipmi",
