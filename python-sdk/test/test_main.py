@@ -3,6 +3,12 @@ from weopsproxy.core import WeOpsProxyClient
 from test_env import *
 
 class TestClass:
+    def setup_method(self):
+        self.client = WeOpsProxyClient(
+            consul_host=CONSUL_IP,
+            consul_port=CONSUL_PORT
+        )
+
     def test_初始化client(self):
         WeOpsProxyClient(
             consul_host=CONSUL_IP,
@@ -10,10 +16,7 @@ class TestClass:
         )
 
     def test_生成conul的key(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
+        client = self.client
         keys = ["cisco_cw", "h3c_cw", "huawei_cw"]
         for a in keys:
             assert client._generate_key(
@@ -23,11 +26,7 @@ class TestClass:
         assert client._generate_key(zone="default",module="ipmi",key="ipmi_test") == f"weops/zone/default/ipmi/ipmi_test"
 
     def test_生成snmp采集任务的values(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client._get_snmp_task(task_id="cisco_cw", task_address="192.168.165.200", task_module="cisco_cw", interval="60s",labels={"tag":"name"},timeout="60s",auth={
+        self.client._get_snmp_task(task_id="cisco_cw", task_address="192.168.165.200", task_module="cisco_cw", interval="60s",labels_str={"tag":"name"},timeout="60s",auth={
             "username": "cisco123",
             "security_level": "AuthNoPriv",
             "password": "mypass123456",
@@ -38,18 +37,10 @@ class TestClass:
         })
     
     def test_生产ipmi采集任务的vaules(self):
-      client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-      client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",password="password",labels={"tag":"name"},interval="60s",timeout="60s")
+      self.client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",password="password",labels_str={"tag":"name"},interval="60s",timeout="60s")
 
     def test_添加snmp_v2任务(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.put_snmp_v2_task(zone="default",
+        self.client.put_snmp_v2_task(zone="default",
                                 task_id="cisco_v2",
                                 task_address="192.168.165.200",
                                 task_config="cisco_cw",
@@ -57,11 +48,7 @@ class TestClass:
                                 community="cisco")
 
     def test_添加snmp_v3任务(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.put_snmp_v3_task(zone="default", task_id="cisco_v3", task_address="192.168.165.200", task_config="cisco_cw",
+        self.client.put_snmp_v3_task(zone="default", task_id="cisco_v3", task_address="192.168.165.200", task_config="cisco_cw",
                                 username="cisco123",
                                 security_level="authPriv",
                                 password="mypass123456",
@@ -72,88 +59,52 @@ class TestClass:
                                 context_name="")
 
     def test_查询snmp任务(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.get_snmp_task(zone="default", task_id="cisco_v2")
-        client.get_snmp_task(zone="default", task_id="cisco_v3")
+        self.client.get_snmp_task(zone="default", task_id="cisco_v2")
+        self.client.get_snmp_task(zone="default", task_id="cisco_v3")
 
     def test_创建全局配置(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.put_global_config(
+        self.client.put_global_config(
             module="snmp", config_id="cisco_cw", config=CISCO_SNMP_CONFIG)
 
     def test_查询全局配置(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.get_global_config(module="snmp", config_id="cisco_cw")
+        self.client.get_global_config(module="snmp", config_id="cisco_cw")
 
     def test_删除全局配置(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.delete_global_config(module="snmp", config_id="h3c")
+        self.client.delete_global_config(module="snmp", config_id="h3c")
+
+    def test_创建接入点(self):
+        self.client.put_access_points(ip="10.10.10.10",name="default",zone="default",port=8089)
 
     def test_获取接入点(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        print(client.get_access_points())
+        print(self.client.get_access_points())
 
     def test_写入指标(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.put_metric(metric_record="cw_export_up",metric_expr="""irate(cw_CiscoSwitch_ifInOctets{module="cisco_switch"}[1m])""")
+        self.client.put_metric(metric_record="cw_export_up",metric_expr="""irate(cw_CiscoSwitch_ifInOctets{module="cisco_switch"}[1m])""")
     
     def test_获取指标(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        print(client.get_metric(metric_record="cw_export_up"))
+        print(self.client.get_metric(metric_record="cw_export_up"))
 
     def test_删除指标(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.delete_metric(metric_record="cw_export_up")
+        self.client.delete_metric(metric_record="cw_export_up")
 
     def test_创建IPMI监控任务(self):
-      client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-      client.put_ipmi_task(task_id="test_ipmi_2",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD,labels={"name":"ipmi","value":"abcd"},zone="default")
+      self.client.put_ipmi_task(task_id="test_ipmi_1",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD,labels={"name":"ipmi","value":"abcd"},zone="default")
     
     def test_获取IPMI监控任务(self):
-      client = WeOpsProxyClient(
-        consul_host=CONSUL_IP,
-        consul_port=CONSUL_PORT
-      )
-      client.get_ipmi_task(zone="default",task_id="test_ipmi_1")
+      self.client.get_ipmi_task(zone="default",task_id="test_ipmi_1")
     
     def test_删除IPMI监控任务(self):
-      client = WeOpsProxyClient(
-        consul_host=CONSUL_IP,
-        consul_port=CONSUL_PORT
-      )
-      client.delete_ipmi_task(zone="default",task_id="test_ipmi_1")
+      self.client.delete_ipmi_task(zone="default",task_id="test_ipmi_1")
     
     def test_删除snmp任务(self):
-        client = WeOpsProxyClient(
-            consul_host=CONSUL_IP,
-            consul_port=CONSUL_PORT
-        )
-        client.delete_snmp_task(zone="default", task_id="cisco_v2")
-        client.delete_snmp_task(zone="default", task_id="cisco_v3")
+        self.client.delete_snmp_task(zone="default", task_id="cisco_v2")
+        self.client.delete_snmp_task(zone="default", task_id="cisco_v3")
+
+    def test_创建告警策略(self):
+        self.client.put_alert(alert_record="alert-01",alert_expr='up{job="node-exporter"} == 0',interval="60s",labels={"name":"eric"},annotations={"aaa":"bbbb"})
+    
+    def test_获取告警策略(self):
+        print(self.client.get_alert(alert_record="alert-01"))
+    
+    def test_删除告警策略(self):
+        self.client.delete_alert(alert_record="alert-01")
