@@ -177,12 +177,6 @@ ${annotations}"""
             labels_str += '- name: {}\n  value: {}\n'.format(name, value)
         return labels_str
 
-    def _build_alert_label_str(sef, labels: dict) -> None:
-        labels_str = ""
-        for name, value in labels.items():
-            labels_str += '  {}: {}\n'.format(name, value)
-        return labels_str
-
     def put_snmp_v2_task(self, zone: str, task_id: str, task_address: str, task_config: str, community: str, labels: dict={}, interval: str="60s", timeout: str="60s") -> None:
         labels_str = self._build_label_str(labels)
         self._runner(self.Action.Put,
@@ -317,16 +311,10 @@ ${annotations}"""
         self._runner(action=self.Action.Delete,
                      key=self._generate_key(zone=zone, key=task_id, module="ipmi"))
 
-    def put_alert(self, alert_record: str, alert_expr: str, interval: str="3m", labels: dict={}, annotations: dict={}) -> None:
-        path = "weops/global/alert/{}".format(alert_record)
-        alert_labels_str = self._build_alert_label_str(labels=labels)
-        alert_annotations_str = self._build_alert_label_str(labels=annotations)
-        print(Template(self.__alert_template).safe_substitute({
-            "alert": alert_record,
-            "expr": alert_expr,
-            "labels": alert_labels_str,
-            "annotations": alert_annotations_str
-        }))
+    def put_alert_strategy(self, alert_record: str, alert_expr: str, interval: str="3m", labels: dict={}, annotations: dict={}) -> None:
+        path = "weops/global/alerts/strategy/{}".format(alert_record)
+        alert_labels_str = self._build_label_str(labels=labels)
+        alert_annotations_str = self._build_label_str(labels=annotations)
         self._runner(self.Action.Put,
                      key=path,
                      value=Template(self.__alert_template).safe_substitute({
@@ -337,12 +325,12 @@ ${annotations}"""
                          "annotations": alert_annotations_str
                      }))
 
-    def delete_alert(self, alert_record: str) -> None:
-        path = "weops/global/alert/{}".format(alert_record)
+    def delete_alert_strategy(self, alert_record: str) -> None:
+        path = "weops/global/alerts/strategy/{}".format(alert_record)
         self._runner(action=self.Action.Delete, key=path)
 
-    def get_alert(self, alert_record: str) -> None:
-        path = "weops/global/alert/{}".format(alert_record)
+    def get_alert_strategy(self, alert_record: str) -> None:
+        path = "weops/global/alerts/strategy/{}".format(alert_record)
         data = self._runner(action=self.Action.Get, key=path)
         try:
             return data[1]["Value"]

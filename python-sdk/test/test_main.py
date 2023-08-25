@@ -101,10 +101,10 @@ class TestClass:
         self.client.delete_snmp_task(zone="default", task_id="cisco_v3")
 
     def test_创建告警策略(self):
-        self.client.put_alert(alert_record="alert-01",alert_expr='up{job="node-exporter"} == 0',interval="60s",labels={"name":"eric"},annotations={"aaa":"bbbb"})
+        self.client.put_alert_strategy(alert_record="alert-01",alert_expr='up{job="node-exporter"} == 0',interval="60s",labels={"name":"eric","age":18},annotations={"aaa":"bbbb","template":"12345"})
     
     def test_获取告警策略(self):
-        print(self.client.get_alert(alert_record="alert-01"))
+        print(self.client.get_alert_strategy(alert_record="alert-01"))
     
     def test_删除告警策略(self):
-        self.client.delete_alert(alert_record="alert-01")
+        self.client.delete_alert_strategy(alert_record="alert-01")
