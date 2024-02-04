@@ -15,3 +15,5 @@ release:
 docker:
 	docker build . -t weopsproxy
 
+docker-arm:
+	docker build . -f Dockerfile.arm -t weops-proxy

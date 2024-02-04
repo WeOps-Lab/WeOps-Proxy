@@ -245,7 +245,9 @@ expr: ${expr}
 
     def get_access_points(self):
         paths = self.__list_consul_key()
-        paths.remove('weops/access_points/')
+        rootPath = 'weops/access_points/'
+        if rootPath in paths:
+            paths.remove(rootPath)
         access_points = []
         for node in paths:
             data = self._runner(self.Action.Get, key=node)[1].get("Value")
