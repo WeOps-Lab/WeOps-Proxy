@@ -37,12 +37,12 @@ class TestClass:
             "context_name": ""
         })
     
-    def test_生产ipmi采集任务的vaules(self):
+    def test_生成ipmi采集任务的vaules(self):
       client = WeOpsProxyClient(
             consul_host=CONSUL_IP,
             consul_port=CONSUL_PORT
         )
-      client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",password="password",labels={"tag":"name"},interval="60s",timeout="60s")
+      client._get_ipmi_task(task_id="ipmi_task_1",task_address="10.10.10.10",userid="USERID",driver="LAN_2_0",password="password",labels={"tag":"name"},interval="60s",timeout="60s")
 
     def test_添加snmp_v2任务(self):
         client = WeOpsProxyClient(
@@ -129,12 +129,20 @@ class TestClass:
         )
         client.delete_metric(metric_record="cw_export_up")
 
-    def test_创建IPMI监控任务(self):
+    def test_创建IPMIV2监控任务(self):
       client = WeOpsProxyClient(
             consul_host=CONSUL_IP,
             consul_port=CONSUL_PORT
         )
       client.put_ipmi_task(task_id="test_ipmi_2",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD,labels={"name":"ipmi","value":"abcd"},zone="default")
+    
+    def test_创建IPMIV1监控任务(self):
+      client = WeOpsProxyClient(
+            consul_host=CONSUL_IP,
+            consul_port=CONSUL_PORT
+        )
+      client.put_ipmi_task(task_id="test_ipmi_1",task_address=IPMI_IP,userid=IPMI_USER,password=IPMI_PASSWORD, driver="LAN_1_5",labels={"name":"ipmi","value":"abcd"},zone="default")
+    
     
     def test_获取IPMI监控任务(self):
       client = WeOpsProxyClient(
@@ -142,6 +150,7 @@ class TestClass:
         consul_port=CONSUL_PORT
       )
       client.get_ipmi_task(zone="default",task_id="test_ipmi_1")
+      client.get_ipmi_task(zone="default",task_id="test_ipmi_2")
     
     def test_删除IPMI监控任务(self):
       client = WeOpsProxyClient(
@@ -149,6 +158,7 @@ class TestClass:
         consul_port=CONSUL_PORT
       )
       client.delete_ipmi_task(zone="default",task_id="test_ipmi_1")
+      client.delete_ipmi_task(zone="default",task_id="test_ipmi_2")
     
     def test_删除snmp任务(self):
         client = WeOpsProxyClient(
