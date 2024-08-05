@@ -12,7 +12,7 @@ ADD ./templates ./templates
 
 ENV PROXY_HOME /app
 ENV ENV_CONSUL_ADDR http://127.0.0.1:8501
-RUN  wget -O /tmp/consul.zip https://releases.hashicorp.com/consul/1.14.1/consul_1.14.1_linux_amd64.zip unzip -d /bin /tmp/consul.zip && \ 
+RUN  wget -O /tmp/consul.zip https://releases.hashicorp.com/consul/1.14.1/consul_1.14.1_linux_amd64.zip && unzip -d /bin /tmp/consul.zip && \ 
 wget -O /tmp/consul-template.zip https://releases.hashicorp.com/consul-template/0.29.5/consul-template_0.29.5_linux_amd64.zip && unzip -d /bin /tmp/consul-template.zip && \
 wget -O /tmp/grafana-agent.zip https://github.com/grafana/agent/releases/download/v0.30.1/agent-linux-amd64.zip && unzip -d /bin /tmp/grafana-agent.zip && mv /bin/agent-linux-amd64 /bin/grafana-agent && \
 wget -O /tmp/telegraf.tar.gz https://dl.influxdata.com/telegraf/releases/telegraf-1.25.0_linux_amd64.tar.gz && tar -zxvf /tmp/telegraf.tar.gz -C /app && ln -s /app/telegraf-1.25.0/usr/bin/telegraf /bin && \
