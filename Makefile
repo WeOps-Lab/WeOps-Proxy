@@ -15,3 +15,8 @@ release:
 docker:
 	docker build . -t weopsproxy
 
+docker-arm:
+	docker build . -f Dockerfile.arm -t weops-proxy
+
+test:
+	cd python-sdk && python -m pytest -k

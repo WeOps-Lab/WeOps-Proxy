@@ -15,7 +15,7 @@ task:
   address: ${task_address}
   user: ${userid}
   pass: ${password}
-  driver: LAN_2_0
+  driver: ${driver}
   timeout: 10000
 labels:
 ${labels}
@@ -115,7 +115,7 @@ expr: ${expr}
     def _get_key(self, module, key, type, zone) -> str:
         return self.__consul_path_template.format(type, zone, module, key)
 
-    def _get_ipmi_task(self, task_id, task_address, interval, timeout, userid, password,labels) -> str:
+    def _get_ipmi_task(self, task_id, task_address, interval, timeout, userid, password, driver,labels) -> str:
         task_info = {
             "task_id": task_id,
             "task_address": task_address,
@@ -123,6 +123,7 @@ expr: ${expr}
             "password": password,
             "interval": interval,
             "timeout": timeout,
+            "driver": driver,
             "labels": labels
         }
         return Template(self.__ipmi_template).safe_substitute(task_info)
@@ -163,7 +164,7 @@ expr: ${expr}
             params.update(self.__config_param)
         return self._get_key(**params)
     
-    def _build_label_str(sef,labels):
+    def _build_label_str(self,labels):
         labels_str = ""
         for name, value in labels.items():
             labels_str += '- name: {}\n  value: {}\n'.format(name, value)
@@ -245,7 +246,9 @@ expr: ${expr}
 
     def get_access_points(self):
         paths = self.__list_consul_key()
-        paths.remove('weops/access_points/')
+        rootPath = 'weops/access_points/'
+        if rootPath in paths:
+            paths.remove(rootPath)
         access_points = []
         for node in paths:
             data = self._runner(self.Action.Get, key=node)[1].get("Value")
@@ -273,12 +276,12 @@ expr: ${expr}
         self._runner(self.Action.Delete,
                      key="weops/global/metrics/{}".format(metric_record))
 
-    def put_ipmi_task(self, zone, task_id, task_address, userid, password, labels={},interval="60s", timeout="60s"):
+    def put_ipmi_task(self, zone, task_id, task_address, userid, password,labels={},interval="60s", timeout="60s", driver="LAN_2_0"):
         labels_str = self._build_label_str(labels)
         self._runner(self.Action.Put,
                      key=self._generate_key(
                          zone=zone, key=task_id, module="ipmi"),
-                     value=self._get_ipmi_task(task_id=task_id, task_address=task_address, userid=userid, password=password, labels=labels_str,interval=interval, timeout=timeout))
+                     value=self._get_ipmi_task(task_id=task_id, task_address=task_address, userid=userid, password=password, driver=driver,labels=labels_str,interval=interval, timeout=timeout))
 
     def get_ipmi_task(self, zone, task_id) -> str:
         data = self._runner(action=self.Action.Get,
