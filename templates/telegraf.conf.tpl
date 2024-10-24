@@ -1,16 +1,15 @@
 {{ $remote_url := envOrDefault "REMOTE_URL" "http://10.10.10.10/api/v1/write" }}{{ $zone := envOrDefault "ZONE" "default" }}[agent]
-  interval = "10s"
-  round_interval = true
 {{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}
 [[inputs.ipmi_sensor]]
-timeout = {{if $d.timeout }}"{{ $d.timeout }}"{{else}}"60s"{{end}}
-interval = {{if $d.interval }}"{{ $d.interval }}"{{else}}"60s"{{end}}
-servers = ["{{$d.userid}}:{{$d.password}}@lan({{$d.server}})"]
+timeout = {{if $d.scrape_timeout }}"{{ $d.scrape_timeout }}"{{else}}"60s"{{end}}
+interval = {{if $d.scrape_interval }}"{{ $d.scrape_interval }}"{{else}}"60s"{{end}}
+servers = ["{{$d.task.user}}:{{$d.task.pass}}@{{if eq $d.task.driver "LAN_2_0" }}lanplus{{else}}lan{{end}}({{$d.task.address}})"]
   [inputs.ipmi_sensor.tags]
-    task_name = "{{$d.task_name}}"
+    protocol = "ipmi"
+    source = "telegraf"
+    {{ range $i, $elem := $d.labels }}{{$elem.name}} = "{{$elem.value}}"
+    {{ end }}
 {{ end }}{{end}}
-[[outputs.file]]
-files=["stdout"]
 
 [[outputs.http]]
 url = "{{ $remote_url }}"

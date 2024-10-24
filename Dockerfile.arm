@@ -1,21 +1,15 @@
-# 使用 slim-buster 版本的 Debian 作为基础镜像
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
-# 添加 noninteractive 环境变量以在构建过程中避免提示
-# 更新 APT 源
-RUN echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free" > /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list
-
-# 安装必要的依赖项
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
+RUN sed -i 's/deb.debian.org/repo.huaweicloud.com/g' /etc/apt/sources.list && \
+    apt-get update --allow-insecure-repositories && \
+    apt-get install -y \
     curl \
     unzip \
     supervisor \
     wget \
     freeipmi \
+    vim \
+    ipmitool \
     ca-certificates \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
@@ -30,6 +24,7 @@ ADD ./config ./config
 ADD ./templates ./templates
 
 ENV PROXY_HOME /app
+ENV IPMI_RUNTIME ipmi_exporter
 
 # 复制现有 wget 命令
 RUN wget -O /tmp/consul.zip https://releases.hashicorp.com/consul-template/0.29.5/consul-template_0.29.5_linux_arm64.zip && unzip -d /bin /tmp/consul.zip && \
@@ -41,4 +36,4 @@ RUN wget -O /tmp/consul.zip https://releases.hashicorp.com/consul-template/0.29.
 
 USER weops
 EXPOSE 12345
-ENTRYPOINT ["supervisord","-c","config/supervisord.conf","--nodaemon"]
+ENTRYPOINT ["docker-entrypoint.sh"]

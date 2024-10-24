@@ -1,4 +1,4 @@
-{{ $remote_url := envOrDefault "REMOTE_URL" "http://10.10.10.10/api/v1/write" }}{{ $zone := envOrDefault "ZONE" "default" }}prometheus.remote_write "staging" {
+{{ $remote_url := envOrDefault "REMOTE_URL" "http://10.10.10.10/api/v1/write" }}{{ $zone := envOrDefault "ZONE" "default" }}{{ $ipmi_runtime :=  envOrDefault "IPMI_RUNTIME" "ipmi_exporter" }}prometheus.remote_write "staging" {
   endpoint {
     url = "{{ $remote_url }}"
   }
@@ -25,7 +25,7 @@
 }{{ end }}
 {{ end }}
 
-{{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
+{{ if eq $ipmi_runtime ""ipmi_exporter }}{{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
     { "__address__" = "127.0.0.1:9290", 
       "instance" = "{{$d.task.address}}", 
@@ -43,7 +43,8 @@
   params          = { "target" = ["{{$d.task.address}}"], "module" = ["{{$d.name}}"] }
   metrics_path    = "/ipmi"
 }{{ end }}
-{{ end }}
+{{ end }}{{ else }}{{ end }}
+
 
 prometheus.relabel "ipmi_label" {
   forward_to = [prometheus.relabel.init_proxy_label.receiver]

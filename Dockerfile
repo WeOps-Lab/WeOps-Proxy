@@ -1,6 +1,6 @@
 FROM alpine:3.17
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apk/repositories && \
-apk add supervisor freeipmi curl && \
+apk add supervisor freeipmi curl vim ipmitool && \
 adduser weops --uid 1001 --disabled-password && \
 mkdir /var/log/supervisor && chown 1001:1001 /var/log/supervisor && \
 mkdir -p /app/run && chown 1001:1001 /app/run && \
@@ -12,6 +12,7 @@ ADD ./templates ./templates
 
 ENV PROXY_HOME /app
 ENV ENV_CONSUL_ADDR http://127.0.0.1:8501
+ENV IPMI_RUNTIME ipmi_exporter
 RUN  wget -O /tmp/consul.zip https://releases.hashicorp.com/consul/1.14.1/consul_1.14.1_linux_amd64.zip && unzip -d /bin /tmp/consul.zip && \ 
 wget -O /tmp/consul-template.zip https://releases.hashicorp.com/consul-template/0.29.5/consul-template_0.29.5_linux_amd64.zip && unzip -d /bin /tmp/consul-template.zip && \
 wget -O /tmp/grafana-agent.zip https://github.com/grafana/agent/releases/download/v0.30.1/agent-linux-amd64.zip && unzip -d /bin /tmp/grafana-agent.zip && mv /bin/agent-linux-amd64 /bin/grafana-agent && \
@@ -22,4 +23,4 @@ chown -R 1001:1001 /app
 
 USER weops
 EXPOSE 12345
-ENTRYPOINT ["supervisord","-c","config/supervisord.conf","--nodaemon"]  
+ENTRYPOINT ["docker-entrypoint.sh"]  

@@ -1,0 +1,86 @@
+[unix_http_server]
+file=%(ENV_PROXY_HOME)s/run/supervisor.sock   ; (the path to the socket file)
+chmod=0700                       ; sockef file mode (default 0700)
+
+[supervisord]
+logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+pidfile=%(ENV_PROXY_HOME)s/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+childlogdir=/var/log/supervisor            ; ('AUTO' child log dir, default $TEMP)
+
+; the below section must remain in the config file for RPC
+; (supervisorctl/web interface) to work, additional interfaces may be
+; added by defining them in separate rpcinterface: sections
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix://%(ENV_PROXY_HOME)s/run/supervisor.sock ; use a unix:// URL  for a unix socket
+#程序的名字，在supervisor中可以用这个名字来管理该程序。
+
+[program:consul-template]
+directory = %(ENV_PROXY_HOME)s
+command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl -config templates/ipmi.hcl
+autostart = true
+startsecs = 5
+autorestart = true
+startretries = 3
+redirect_stderr = true
+stdout_logfile_maxbytes = 20MB
+stdout_logfile_backups = 20
+stdout_logfile = %(ENV_PROXY_HOME)s/log/consul-template.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/consul-template.err.log
+
+[program:grafana-agent]
+directory = %(ENV_PROXY_HOME)s
+command = grafana-agent -config.file config/agent.conf -disable-reporting -server.http.address 127.0.0.1:12345 --server.http.write-timeout 10m --server.http.read-timeout 10m --server.http.idle-timeout 10m
+autostart = true
+startsecs = 5
+autorestart = true
+startretries = 3
+redirect_stderr = true
+stdout_logfile_maxbytes = 20MB
+stdout_logfile_backups = 20
+stdout_logfile = %(ENV_PROXY_HOME)s/log/grafana-agent.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/grafana-agent.err.log
+
+[program:grafana-agent-flow]
+directory = %(ENV_PROXY_HOME)s
+environment = AGENT_MODE=flow
+command =  grafana-agent run /app/config/flow.conf --disable-reporting --server.http.listen-addr=0.0.0.0:1234
+autostart = true
+startsecs = 5
+autorestart = true
+startretries = 3
+redirect_stderr = true
+stdout_logfile_maxbytes = 20MB
+stdout_logfile_backups = 20
+stdout_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.err.log
+
+{{ $ipmi_runtime :=  envOrDefault "IPMI_RUNTIME" "ipmi_exporter" }}{{ if eq $ipmi_runtime "ipmi_exporter" }}
+[program:ipmi]
+directory = %(ENV_PROXY_HOME)s
+command = ipmi_exporter --config.file config/ipmi.conf
+autostart = true
+startsecs = 5
+autorestart = true
+startretries = 3
+redirect_stderr = true
+stdout_logfile_maxbytes = 20MB
+stdout_logfile_backups = 20
+stdout_logfile = %(ENV_PROXY_HOME)s/log/ipmi.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/ipmi.err.log
+{{ else }}
+[program:telegraf]
+directory = %(ENV_PROXY_HOME)s
+command = telegraf --config config/telegraf.conf
+autostart = true
+startsecs = 5
+autorestart = true
+startretries = 3
+redirect_stderr = true
+stdout_logfile_maxbytes = 20MB
+stdout_logfile_backups = 20
+stdout_logfile = %(ENV_PROXY_HOME)s/log/telegraf.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/telegraf.err.log
+{{ end }}
