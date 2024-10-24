@@ -19,7 +19,7 @@ serverurl=unix://%(ENV_PROXY_HOME)s/run/supervisor.sock ; use a unix:// URL  for
 
 [program:consul-template]
 directory = %(ENV_PROXY_HOME)s
-command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl {{ if eq $ipmi_runtime "ipmi_exporter" }} -config templates/ipmi.hcl {{ else }} -config templates/telegraf.hcl {{ end }}
+command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s {{ if eq $ipmi_runtime "ipmi_exporter" }} -config templates/ipmi.hcl {{ else }} -config templates/telegraf.hcl {{ end }} -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl
 autostart = true
 startsecs = 5
 autorestart = true
