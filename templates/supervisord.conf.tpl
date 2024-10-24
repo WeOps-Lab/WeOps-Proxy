@@ -1,4 +1,4 @@
-[unix_http_server]
+{{ $ipmi_runtime :=  envOrDefault "IPMI_RUNTIME" "ipmi_exporter" }}[unix_http_server]
 file=%(ENV_PROXY_HOME)s/run/supervisor.sock   ; (the path to the socket file)
 chmod=0700                       ; sockef file mode (default 0700)
 
@@ -19,7 +19,7 @@ serverurl=unix://%(ENV_PROXY_HOME)s/run/supervisor.sock ; use a unix:// URL  for
 
 [program:consul-template]
 directory = %(ENV_PROXY_HOME)s
-command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl -config templates/ipmi.hcl
+command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl {{ if eq $ipmi_runtime "ipmi_exporter" }} -config templates/ipmi.hcl {{ else }} -config templates/telegraf.hcl {{ end }}
 autostart = true
 startsecs = 5
 autorestart = true
@@ -57,7 +57,7 @@ stdout_logfile_backups = 20
 stdout_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.out.log
 stderr_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.err.log
 
-{{ $ipmi_runtime :=  envOrDefault "IPMI_RUNTIME" "ipmi_exporter" }}{{ if eq $ipmi_runtime "ipmi_exporter" }}
+{{ if eq $ipmi_runtime "ipmi_exporter" }}
 [program:ipmi]
 directory = %(ENV_PROXY_HOME)s
 command = ipmi_exporter --config.file config/ipmi.conf
@@ -73,7 +73,7 @@ stderr_logfile = %(ENV_PROXY_HOME)s/log/ipmi.err.log
 {{ else }}
 [program:telegraf]
 directory = %(ENV_PROXY_HOME)s
-command = telegraf --config config/telegraf.conf
+command = telegraf  -config config/telegraf.conf --watch-config notify
 autostart = true
 startsecs = 5
 autorestart = true
