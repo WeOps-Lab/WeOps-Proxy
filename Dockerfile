@@ -21,6 +21,7 @@ wget -O /tmp/ipmi.tar.gz https://github.com/prometheus-community/ipmi_exporter/r
 rm -rf /tmp/* && \
 chown -R 1001:1001 /app
 
+ADD ./docker-entrypoint.sh /app/docker-entrypoint.sh
 USER weops
 EXPOSE 12345
 ENTRYPOINT ["docker-entrypoint.sh"]  
