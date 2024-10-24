@@ -25,7 +25,7 @@
 }{{ end }}
 {{ end }}
 
-{{ if eq $ipmi_runtime ""ipmi_exporter }}{{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
+{{ if eq $ipmi_runtime "ipmi_exporter" }}{{ range ls (printf "/weops/zone/%s/ipmi" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
     { "__address__" = "127.0.0.1:9290", 
       "instance" = "{{$d.task.address}}", 
