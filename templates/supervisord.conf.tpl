@@ -19,9 +19,9 @@ serverurl=unix://%(ENV_PROXY_HOME)s/run/supervisor.sock ; use a unix:// URL  for
 
 [program:consul-template]
 directory = %(ENV_PROXY_HOME)s
-command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s {{ if eq $ipmi_runtime "ipmi_exporter" }} -config templates/ipmi.hcl {{ else }} -config templates/telegraf.hcl {{ end }} -config templates/modules.hcl -config templates/agent.hcl -config templates/flow.hcl
+command = consul-template -consul-addr %(ENV_CONSUL_ADDR)s {{ if eq $ipmi_runtime "ipmi_exporter" }} -config templates/ipmi.hcl {{ else }} -config templates/telegraf.hcl {{ end }} -config templates/alloy_snmp_modules.hcl -config templates/alloy_snmp_auth.hcl -config templates/alloy.hcl
 autostart = true
-startsecs = 5
+startsecs = 5   
 autorestart = true
 startretries = 3
 redirect_stderr = true
@@ -30,23 +30,10 @@ stdout_logfile_backups = 20
 stdout_logfile = %(ENV_PROXY_HOME)s/log/consul-template.out.log
 stderr_logfile = %(ENV_PROXY_HOME)s/log/consul-template.err.log
 
-[program:grafana-agent]
-directory = %(ENV_PROXY_HOME)s
-command = grafana-agent -config.file config/agent.conf -disable-reporting -server.http.address 127.0.0.1:12345 --server.http.write-timeout 10m --server.http.read-timeout 10m --server.http.idle-timeout 10m
-autostart = true
-startsecs = 5
-autorestart = true
-startretries = 3
-redirect_stderr = true
-stdout_logfile_maxbytes = 20MB
-stdout_logfile_backups = 20
-stdout_logfile = %(ENV_PROXY_HOME)s/log/grafana-agent.out.log
-stderr_logfile = %(ENV_PROXY_HOME)s/log/grafana-agent.err.log
-
-[program:grafana-agent-flow]
+[program:alloy]
 directory = %(ENV_PROXY_HOME)s
 environment = AGENT_MODE=flow
-command =  grafana-agent run /app/config/flow.conf --disable-reporting --server.http.listen-addr=0.0.0.0:1234
+command =  alloy run /app/config/alloy.conf --disable-reporting --server.http.listen-addr=0.0.0.0:1234
 autostart = true
 startsecs = 5
 autorestart = true
@@ -54,8 +41,8 @@ startretries = 3
 redirect_stderr = true
 stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 20
-stdout_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.out.log
-stderr_logfile = %(ENV_PROXY_HOME)s/log/grafana-flow.err.log
+stdout_logfile = %(ENV_PROXY_HOME)s/log/alloy.out.log
+stderr_logfile = %(ENV_PROXY_HOME)s/log/alloy.err.log
 
 {{ if eq $ipmi_runtime "ipmi_exporter" }}
 [program:ipmi]

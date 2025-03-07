@@ -15,7 +15,7 @@ ENV ENV_CONSUL_ADDR http://127.0.0.1:8501
 ENV IPMI_RUNTIME ipmi_exporter
 RUN  wget -O /tmp/consul.zip https://releases.hashicorp.com/consul/1.14.1/consul_1.14.1_linux_amd64.zip && unzip -d /bin /tmp/consul.zip && \ 
 wget -O /tmp/consul-template.zip https://releases.hashicorp.com/consul-template/0.29.5/consul-template_0.29.5_linux_amd64.zip && unzip -d /bin /tmp/consul-template.zip && \
-wget -O /tmp/grafana-agent.zip https://github.com/grafana/agent/releases/download/v0.30.1/agent-linux-amd64.zip && unzip -d /bin /tmp/grafana-agent.zip && mv /bin/agent-linux-amd64 /bin/grafana-agent && \
+wget -O /tmp/grafana-agent.zip https://github.com/grafana/alloy/releases/download/v1.7.1/alloy-boringcrypto-linux-amd64.zip && unzip -d /bin /tmp/alloy.zip && mv /bin/alloy-boringcrypto-linux-amd64 /bin/alloy && \
 wget -O /bin/telegraf https://wedoc.canway.net/imgs/telegraf && chmod 0755 /bin/telegraf && \
 wget -O /tmp/ipmi.tar.gz https://github.com/prometheus-community/ipmi_exporter/releases/download/v1.6.1/ipmi_exporter-1.6.1.linux-amd64.tar.gz && cd /tmp && tar -zxvf ipmi.tar.gz && cp /tmp/ipmi_exporter-1.6.1.linux-amd64/ipmi_exporter /bin &&\
 rm -rf /tmp/* && \

@@ -1,7 +1,9 @@
 .PHONY: sdk docker
 
 .DEFAULT_GOAL := docker
-
+TEMPLATE := $(word 2, $(MAKECMDGOALS))
+# 自动获取cpu架构
+ARCH := $(shell uname -m)
 test:
 	python -m pytest -k
 
@@ -20,3 +22,6 @@ docker-arm:
 
 test:
 	cd python-sdk && python -m pytest -k
+
+render:
+	consul-template -template templates/$(TEMPLATE).tpl -once --consul-addr=http://proxy.weops.com -dry

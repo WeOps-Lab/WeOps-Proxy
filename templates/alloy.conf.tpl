@@ -4,10 +4,13 @@
   }
 }
 
+prometheus.exporter.snmp "snmp" {
+    config_file = "alloy_snmp*"
+}
 
 {{ range ls (printf "/weops/zone/%s/snmp" $zone) }}{{ with $d := .Value | parseYAML }}prometheus.scrape "{{$d.name}}" {
   targets = [
-    { "__address__" = "127.0.0.1:12345", 
+    { "__address__" = "127.0.0.1:1234", 
       "instance" = "{{$d.address}}", 
       "module" = "{{$d.module}}",
       "protocol" = "snmp",
@@ -20,8 +23,8 @@
 
   scrape_interval = "{{$d.interval}}"
   scrape_timeout = "{{$d.timeout}}"
-  params          = { "target" = ["{{$d.address}}"], "module" = ["{{$d.module}}"], "walk_params" = ["{{$d.walk_params}}"] }
-  metrics_path    = "/integrations/snmp/metrics"
+  params          = { "target" = ["{{$d.address}}"], "module" = ["{{$d.module}}"], "auth" = ["{{$d.walk_params}}"] }
+  metrics_path    = "/api/v0/component/prometheus.exporter.snmp.snmp/metrics"
 }{{ end }}
 {{ end }}
 
