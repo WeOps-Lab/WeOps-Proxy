@@ -24,6 +24,7 @@ ADD ./config ./config
 ADD ./templates ./templates
 
 ENV PROXY_HOME /app
+ENV ENV_CONSUL_ADDR http://127.0.0.1:8501
 ENV IPMI_RUNTIME ipmi_exporter
 
 # 复制现有 wget 命令
@@ -34,6 +35,7 @@ RUN wget -O /tmp/consul.zip https://releases.hashicorp.com/consul-template/0.29.
     rm -rf /tmp/* && \
     chown -R 1001:1001 /app
 
+ADD ./docker-entrypoint.sh /app/docker-entrypoint.sh
 USER weops
 EXPOSE 12345
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
