@@ -24,4 +24,4 @@ chown -R 1001:1001 /app
 ADD ./docker-entrypoint.sh /app/docker-entrypoint.sh
 USER weops
 EXPOSE 12345
-ENTRYPOINT ["docker-entrypoint.sh"]  
+ENTRYPOINT ["/app/docker-entrypoint.sh"]  
